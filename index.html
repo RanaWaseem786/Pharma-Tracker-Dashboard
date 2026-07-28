@@ -1612,6 +1612,7 @@ const FIELDS = {
 let currency = 'PKR';
 const CURRENCY_SYMBOLS = { PKR: '₨', USD: '$', AED: 'د.إ' };
 function fmt(n) { return CURRENCY_SYMBOLS[currency] + Number(n||0).toLocaleString('en-PK', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+function normKey(v) { return (v==null ? '' : String(v)).trim().toLowerCase().replace(/\s+/g, ' '); }
 function fmtN(n) { return Number(n||0).toLocaleString(); }
 
 /* ═══════════════════════════════════════════════
@@ -1945,9 +1946,9 @@ function updateStats() {
     if (!d.length) return;
     const totalRev = d.reduce((s,r) => s+r.netAmount, 0);
     const totalDisc = d.reduce((s,r) => s+r.discountAmount, 0) || d.reduce((s,r) => s+(r.grossAmount-r.netAmount), 0);
-    const uniqueCust = new Set(d.map(r => r.customerName)).size;
+    const uniqueCust = new Set(d.map(r => normKey(r.customerName))).size;
     const avgOrder = totalRev / d.length;
-    const uniqueProd = new Set(d.map(r => r.itemName)).size;
+    const uniqueProd = new Set(d.map(r => normKey(r.itemName))).size;
 
     document.getElementById('st-sales').textContent = d.length.toLocaleString();
     document.getElementById('st-revenue').textContent = fmt(totalRev);
@@ -1961,16 +1962,21 @@ function updateStats() {
     document.getElementById('st-sales-sub').innerHTML = `<i class="fas fa-map-marker-alt"></i> Top region: ${topReg ? topReg[0] : '—'}`;
     document.getElementById('st-customers-sub').innerHTML = `<i class="fas fa-crown"></i> Top: ${topCust ? topCust[0] : '—'}`;
     document.getElementById('c-unique').textContent = uniqueCust;
-    document.getElementById('c-companies').textContent = new Set(d.map(r=>r.companyName)).size;
+    document.getElementById('c-companies').textContent = new Set(d.map(r=>normKey(r.companyName))).size;
     document.getElementById('c-top').textContent = topCust ? topCust[0] : '—';
     document.getElementById('p-total').textContent = uniqueProd;
     document.getElementById('p-units').textContent = d.reduce((s,r)=>s+r.stock,0).toLocaleString();
 }
 
 function topByValue(data, keyField, valField) {
-    const map = {};
-    data.forEach(r => { map[r[keyField]] = (map[r[keyField]]||0) + r[valField]; });
-    return Object.entries(map).sort((a,b)=>b[1]-a[1]);
+    const map = {}; // normKey -> { label, total }
+    data.forEach(r => {
+        const raw = r[keyField];
+        const key = normKey(raw);
+        if (!map[key]) map[key] = { label: (raw==null||String(raw).trim()==='') ? '—' : String(raw).trim(), total: 0 };
+        map[key].total += r[valField];
+    });
+    return Object.values(map).sort((a,b) => b.total - a.total).map(o => [o.label, o.total]);
 }
 
 /* ═══════════════════════════════════════════════
@@ -2396,8 +2402,8 @@ function buildPrintReport(data, chartImgs) {
     const now = new Date();
     const totalRev = data.reduce((s,r)=>s+r.netAmount,0);
     const totalDisc = data.reduce((s,r)=>s+(r.grossAmount-r.netAmount),0);
-    const uniqueCust = new Set(data.map(r=>r.customerName)).size;
-    const uniqueProd = new Set(data.map(r=>r.itemName)).size;
+    const uniqueCust = new Set(data.map(r=>normKey(r.customerName))).size;
+    const uniqueProd = new Set(data.map(r=>normKey(r.itemName))).size;
     const avgOrder = totalRev / data.length;
 
     let periodLabel = 'All Time';
