@@ -1373,7 +1373,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             <div class="card-header"><div class="card-title" id="customers-table-title">Customer Leaderboard</div></div>
             <div class="table-wrap">
                 <table>
-                    <thead><tr><th>Rank</th><th>Customer</th><th>Company</th><th>Region</th><th>Orders</th><th>Total Revenue</th><th>Avg Order</th><th>Share</th></tr></thead>
+                    <thead><tr><th>Rank</th><th>Code</th><th>Customer</th><th>Company</th><th>Region</th><th>Orders</th><th>Total Revenue</th><th>Avg Order</th><th>Share</th></tr></thead>
                     <tbody id="customers-table"><tr>
             <td><span class="badge badge-orange">#1</span></td>
             <td style="font-weight:600">City Pharma</td>
@@ -1655,6 +1655,7 @@ const FIELDS = {
     invoiceId:  { label: 'Invoice ID',    variants: ['invoice id','invoice no','invoiceid','inv id','invoice#','invoice number'] },
     invoiceDate:{ label: 'Invoice Date',  variants: ['invoice date','invoicedate','date','booking date'] },
     customerName:{label:'Customer Name',  variants: ['customer name','customername','customer','party name','account name'] },
+    customerCode:{label:'Customer Code',  variants: ['customer code','customercode','cust code','custcode','code','party code','account code','customer id','customerid','cust id','custid'] },
     companyName:{ label: 'Company',       variants: ['company name','companyname','company','firm'] },
     regionName: { label: 'Region',        variants: ['region name','regionname','region','area'] },
     bookingMan: { label: 'Booking Man',   variants: ['booking man','bookingman','sales person','salesperson','rep','officer','booking officer'] },
@@ -1903,6 +1904,7 @@ function importData(headers, rows, mapping) {
     const data = [];
     rows.forEach((row, i) => {
         const custName = String(get(row, 'customerName')).trim();
+        const custCode = String(get(row, 'customerCode')).trim();
         const itemName = String(get(row, 'itemName')).trim();
         if (!custName && !itemName) return;
 
@@ -1921,6 +1923,7 @@ function importData(headers, rows, mapping) {
             invoiceId: String(get(row,'invoiceId')).trim() || `INV-${i+1}`,
             invoiceDate: normalizeDate(dateStr) || '',
             customerName: custName || 'Unknown',
+            customerCode: custCode || custName || 'Unknown',
             companyName: String(get(row,'companyName')).trim() || '—',
             regionName: String(get(row,'regionName')).trim() || '—',
             bookingMan: String(get(row,'bookingMan')).trim() || '—',
@@ -2007,7 +2010,7 @@ function updateStats() {
     if (!d.length) return;
     const totalRev = d.reduce((s,r) => s+r.netAmount, 0);
     const totalDisc = d.reduce((s,r) => s+r.discountAmount, 0) || d.reduce((s,r) => s+(r.grossAmount-r.netAmount), 0);
-    const uniqueCust = new Set(d.map(r => normKey(r.customerName))).size;
+    const uniqueCust = new Set(d.map(r => normKey(r.customerCode || r.customerName))).size;
     const avgOrder = totalRev / d.length;
     const uniqueProd = new Set(d.map(r => normKey(r.itemName))).size;
 
@@ -2099,9 +2102,10 @@ function renderCustomers() {
     empty.style.display='none';
     const map = {};
     data.forEach(r => {
-        if (!map[r.customerName]) map[r.customerName] = { name:r.customerName, company:r.companyName, region:r.regionName, orders:0, total:0 };
-        map[r.customerName].orders++;
-        map[r.customerName].total += r.netAmount;
+        const code = r.customerCode || r.customerName;
+        if (!map[code]) map[code] = { code:code, name:r.customerName, company:r.companyName, region:r.regionName, orders:0, total:0 };
+        map[code].orders++;
+        map[code].total += r.netAmount;
     });
     const totalRev = data.reduce((s,r)=>s+r.netAmount,0);
     const sorted = applyTopN(Object.values(map).sort((a,b)=>b.total-a.total));
@@ -2112,6 +2116,7 @@ function renderCustomers() {
         const share = totalRev > 0 ? (c.total/totalRev*100).toFixed(1) : 0;
         return `<tr>
             <td><span class="badge badge-orange">#${i+1}</span></td>
+            <td class="mono" style="color:var(--muted)">${c.code}</td>
             <td style="font-weight:600">${c.name}</td>
             <td style="color:var(--muted);font-size:12px">${c.company}</td>
             <td>${regionBadge(c.region)}</td>
@@ -2463,7 +2468,7 @@ function buildPrintReport(data, chartImgs) {
     const now = new Date();
     const totalRev = data.reduce((s,r)=>s+r.netAmount,0);
     const totalDisc = data.reduce((s,r)=>s+(r.grossAmount-r.netAmount),0);
-    const uniqueCust = new Set(data.map(r=>normKey(r.customerName))).size;
+    const uniqueCust = new Set(data.map(r=>normKey(r.customerCode || r.customerName))).size;
     const uniqueProd = new Set(data.map(r=>normKey(r.itemName))).size;
     const avgOrder = totalRev / data.length;
 
@@ -2646,12 +2651,12 @@ zone.addEventListener('drop', e => {
 
 // Init with sample data for demo
 const DEMO = [
-    {srno:1,invoiceId:'INV-001',invoiceDate:'2025-01-15',customerName:'Pak Pharma',companyName:'Pharma Corp',regionName:'North',bookingMan:'Ahmed Khan',itemName:'Aspirin',packSize:'20mg',rate:5.50,stock:100,bonus:0,grossAmount:550,discount:0,discountAmount:25,netAmount:525},
-    {srno:2,invoiceId:'INV-002',invoiceDate:'2025-02-14',customerName:'MediCare',companyName:'Health Ltd',regionName:'South',bookingMan:'Fatima Ali',itemName:'Paracetamol',packSize:'500mg',rate:3.20,stock:200,bonus:0,grossAmount:640,discount:0,discountAmount:30,netAmount:610},
-    {srno:3,invoiceId:'INV-003',invoiceDate:'2025-02-13',customerName:'City Pharma',companyName:'City Corp',regionName:'East',bookingMan:'Usman Malik',itemName:'Amoxicillin',packSize:'250mg',rate:8.75,stock:150,bonus:0,grossAmount:1312,discount:0,discountAmount:50,netAmount:1262},
-    {srno:4,invoiceId:'INV-004',invoiceDate:'2025-03-12',customerName:'Star Pharma',companyName:'Star Corp',regionName:'West',bookingMan:'Sara Khan',itemName:'Ibuprofen',packSize:'200mg',rate:4.50,stock:180,bonus:0,grossAmount:810,discount:0,discountAmount:40,netAmount:770},
-    {srno:5,invoiceId:'INV-005',invoiceDate:'2025-03-11',customerName:'Health Plus',companyName:'Plus Corp',regionName:'North',bookingMan:'Ahmed Khan',itemName:'Vitamin C',packSize:'1000mg',rate:12.00,stock:90,bonus:0,grossAmount:1080,discount:0,discountAmount:60,netAmount:1020},
-    {srno:6,invoiceId:'INV-006',invoiceDate:'2025-03-20',customerName:'Pak Pharma',companyName:'Pharma Corp',regionName:'North',bookingMan:'Ahmed Khan',itemName:'Aspirin',packSize:'20mg',rate:5.50,stock:120,bonus:0,grossAmount:660,discount:0,discountAmount:33,netAmount:627},
+    {srno:1,invoiceId:'INV-001',invoiceDate:'2025-01-15',customerName:'Pak Pharma',customerCode:'CUST-001',companyName:'Pharma Corp',regionName:'North',bookingMan:'Ahmed Khan',itemName:'Aspirin',packSize:'20mg',rate:5.50,stock:100,bonus:0,grossAmount:550,discount:0,discountAmount:25,netAmount:525},
+    {srno:2,invoiceId:'INV-002',invoiceDate:'2025-02-14',customerName:'MediCare',customerCode:'CUST-002',companyName:'Health Ltd',regionName:'South',bookingMan:'Fatima Ali',itemName:'Paracetamol',packSize:'500mg',rate:3.20,stock:200,bonus:0,grossAmount:640,discount:0,discountAmount:30,netAmount:610},
+    {srno:3,invoiceId:'INV-003',invoiceDate:'2025-02-13',customerName:'City Pharma',customerCode:'CUST-003',companyName:'City Corp',regionName:'East',bookingMan:'Usman Malik',itemName:'Amoxicillin',packSize:'250mg',rate:8.75,stock:150,bonus:0,grossAmount:1312,discount:0,discountAmount:50,netAmount:1262},
+    {srno:4,invoiceId:'INV-004',invoiceDate:'2025-03-12',customerName:'Star Pharma',customerCode:'CUST-004',companyName:'Star Corp',regionName:'West',bookingMan:'Sara Khan',itemName:'Ibuprofen',packSize:'200mg',rate:4.50,stock:180,bonus:0,grossAmount:810,discount:0,discountAmount:40,netAmount:770},
+    {srno:5,invoiceId:'INV-005',invoiceDate:'2025-03-11',customerName:'Health Plus',customerCode:'CUST-005',companyName:'Plus Corp',regionName:'North',bookingMan:'Ahmed Khan',itemName:'Vitamin C',packSize:'1000mg',rate:12.00,stock:90,bonus:0,grossAmount:1080,discount:0,discountAmount:60,netAmount:1020},
+    {srno:6,invoiceId:'INV-006',invoiceDate:'2025-03-20',customerName:'Pak Pharma',customerCode:'CUST-001',companyName:'Pharma Corp',regionName:'North',bookingMan:'Ahmed Khan',itemName:'Aspirin',packSize:'20mg',rate:5.50,stock:120,bonus:0,grossAmount:660,discount:0,discountAmount:33,netAmount:627},
 ];
 rawData = DEMO;
 populateFilters();
