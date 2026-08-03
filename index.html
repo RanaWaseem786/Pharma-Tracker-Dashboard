@@ -1161,6 +1161,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 </div>
                 <div class="chart-wrap"><canvas id="chartTopProducts" width="497" height="260" style="display: block; box-sizing: border-box; height: 260px; width: 497px;"></canvas></div>
             </div>
+            <div class="card">
+                <div class="card-header">
+                    <div><div class="card-title">Company Distribution</div><div class="card-sub">Market share by company</div></div>
+                </div>
+                <div class="chart-wrap"><canvas id="chartCompanyPie" width="497" height="260" style="display: block; box-sizing: border-box; height: 260px; width: 497px;"></canvas></div>
+            </div>
         </div>
 
         <div class="card">
@@ -1369,6 +1375,72 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 <div class="stat-value" id="c-top" style="font-size:14px">City Pharma</div><div class="stat-label">Top Customer</div>
             </div>
         </div>
+
+        <!-- Customer Slicer -->
+        <div class="card" style="margin-bottom:16px;padding:16px">
+            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+                <label style="font-weight:600;font-size:13px">Select Customer:</label>
+                <select class="filter-select" id="customerSlicer" onchange="updateCustomerAnalysis()" style="min-width:200px">
+                    <option value="">📊 View All Customers</option>
+                </select>
+                <button class="btn btn-ghost" onclick="resetCustomerSlicer()" style="font-size:12px;margin-left:auto"><i class="fas fa-redo"></i> Reset</button>
+            </div>
+        </div>
+
+        <!-- Customer Analysis Charts -->
+        <div id="customerChartsBox" style="display:none">
+            <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:20px">
+                <div class="stat-card" style="--card-accent:var(--accent)">
+                    <div class="stat-value" id="cust-orders" style="font-size:20px">0</div>
+                    <div class="stat-label">Total Orders</div>
+                </div>
+                <div class="stat-card" style="--card-accent:var(--accent2)">
+                    <div class="stat-value" id="cust-revenue" style="font-size:16px">₨0K</div>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+                <div class="stat-card" style="--card-accent:var(--accent4)">
+                    <div class="stat-value" id="cust-avg" style="font-size:16px">₨0K</div>
+                    <div class="stat-label">Avg Order</div>
+                </div>
+                <div class="stat-card" style="--card-accent:var(--accent5)">
+                    <div class="stat-value" id="cust-products" style="font-size:20px">0</div>
+                    <div class="stat-label">Products Bought</div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="card">
+                    <div class="card-header"><div class="card-title">Revenue by Product</div></div>
+                    <div class="chart-wrap"><canvas id="chartCustPie"></canvas></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><div class="card-title">Units per Product</div></div>
+                    <div class="chart-wrap"><canvas id="chartCustBar"></canvas></div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="card">
+                    <div class="card-header"><div class="card-title">Revenue Trend</div></div>
+                    <div class="chart-wrap"><canvas id="chartCustLine"></canvas></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><div class="card-title">Product Distribution</div></div>
+                    <div class="chart-wrap"><canvas id="chartCustDonut"></canvas></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><div class="card-title">Top Products for this Customer</div></div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Rank</th><th>Product</th><th>Pack Size</th><th>Units Sold</th><th>Avg Rate</th><th>Total Revenue</th><th>Share</th></tr></thead>
+                        <tbody id="custTopProducts"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <div class="card">
             <div class="card-header"><div class="card-title" id="customers-table-title">Customer Leaderboard</div></div>
             <div class="table-wrap">
@@ -1457,6 +1529,72 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 <div class="stat-value" id="p-units">840</div><div class="stat-label">Total Units Sold</div>
             </div>
         </div>
+
+        <!-- Product Slicer -->
+        <div class="card" style="margin-bottom:16px;padding:16px">
+            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+                <label style="font-weight:600;font-size:13px">Select Product:</label>
+                <select class="filter-select" id="productSlicer" onchange="updateProductAnalysis()" style="min-width:200px">
+                    <option value="">📊 View All Products</option>
+                </select>
+                <button class="btn btn-ghost" onclick="resetProductSlicer()" style="font-size:12px;margin-left:auto"><i class="fas fa-redo"></i> Reset</button>
+            </div>
+        </div>
+
+        <!-- Product Analysis Charts -->
+        <div id="productChartsBox" style="display:none">
+            <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:20px">
+                <div class="stat-card" style="--card-accent:var(--accent)">
+                    <div class="stat-value" id="prod-orders" style="font-size:20px">0</div>
+                    <div class="stat-label">Total Orders</div>
+                </div>
+                <div class="stat-card" style="--card-accent:var(--accent2)">
+                    <div class="stat-value" id="prod-revenue" style="font-size:16px">₨0K</div>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+                <div class="stat-card" style="--card-accent:var(--accent4)">
+                    <div class="stat-value" id="prod-units" style="font-size:20px">0</div>
+                    <div class="stat-label">Units Sold</div>
+                </div>
+                <div class="stat-card" style="--card-accent:var(--accent5)">
+                    <div class="stat-value" id="prod-customers" style="font-size:20px">0</div>
+                    <div class="stat-label">Unique Customers</div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="card">
+                    <div class="card-header"><div class="card-title">Revenue by Customer</div></div>
+                    <div class="chart-wrap"><canvas id="chartProdPie"></canvas></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><div class="card-title">Sales by Customer</div></div>
+                    <div class="chart-wrap"><canvas id="chartProdBar"></canvas></div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="card">
+                    <div class="card-header"><div class="card-title">Revenue Over Time</div></div>
+                    <div class="chart-wrap"><canvas id="chartProdLine"></canvas></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><div class="card-title">Customer Distribution</div></div>
+                    <div class="chart-wrap"><canvas id="chartProdDonut"></canvas></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><div class="card-title">Top Customers for this Product</div></div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Rank</th><th>Customer</th><th>Company</th><th>Region</th><th>Orders</th><th>Units Bought</th><th>Total Revenue</th><th>Share</th></tr></thead>
+                        <tbody id="prodTopCustomers"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <div class="card">
             <div class="card-header"><div class="card-title" id="products-table-title">Product Performance</div></div>
             <div class="table-wrap">
@@ -2002,6 +2140,7 @@ function updateAll() {
     renderProducts();
     updateCharts();
     updateInsights();
+    populateSlicers();
     document.getElementById('salesBadge').textContent = getBaseData().length.toLocaleString();
 }
 
@@ -2344,6 +2483,371 @@ function updateCharts() {
             }
         }
     });
+
+    // Company Distribution Pie Chart
+    const companyData = {};
+    data.forEach(r => {
+        companyData[r.companyName] = (companyData[r.companyName] || 0) + r.netAmount;
+    });
+    const companies = Object.keys(companyData).sort();
+    const companyValues = companies.map(c => companyData[c]);
+    destroyChart('chartCompanyPie');
+    if (companies.length > 0) {
+        new Chart(document.getElementById('chartCompanyPie'), {
+            type: 'doughnut',
+            data: {
+                labels: companies,
+                datasets: [{ data: companyValues, backgroundColor: ['#58a6ff','#3fb950','#ff7b72','#ffa657','#bc8cff','#56d364','#f778ba','#79c0ff'], borderWidth: 0, hoverOffset: 8 }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'right', labels: { boxWidth: 12, padding: 12, font: { size: 11 } } }, tooltip: { callbacks: { label: function(ctx) { const total = ctx.dataset.data.reduce((a,b)=>a+b,0); const pct = ((ctx.parsed/total)*100).toFixed(1); return fmtK(ctx.parsed) + ' (' + pct + '%)'; } } } },
+                cutout: '65%',
+            }
+        });
+    }
+}
+
+/* ═══════════════════════════════════════════════
+   CUSTOMER & PRODUCT ANALYSIS
+═══════════════════════════════════════════════ */
+function fmtK(val) {
+    if (!val) return '₨0';
+    if (val >= 1000000) return '₨' + (val/1000000).toFixed(1) + 'M';
+    if (val >= 1000) return '₨' + (val/1000).toFixed(1) + 'K';
+    return '₨' + val.toFixed(0);
+}
+
+function populateSlicers() {
+    const data = getBaseData();
+    if (!data.length) return;
+    
+    const customers = [...new Set(data.map(r => r.customerName))].sort();
+    const products = [...new Set(data.map(r => r.itemName))].sort();
+    
+    const custSelect = document.getElementById('customerSlicer');
+    const prodSelect = document.getElementById('productSlicer');
+    
+    if (custSelect) {
+        custSelect.innerHTML = '<option value="">📊 View All Customers</option>';
+        customers.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c;
+            opt.textContent = c;
+            custSelect.appendChild(opt);
+        });
+    }
+    
+    if (prodSelect) {
+        prodSelect.innerHTML = '<option value="">📊 View All Products</option>';
+        products.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p;
+            opt.textContent = p;
+            prodSelect.appendChild(opt);
+        });
+    }
+}
+
+function resetCustomerSlicer() {
+    document.getElementById('customerSlicer').value = '';
+    updateCustomerAnalysis();
+}
+
+function resetProductSlicer() {
+    document.getElementById('productSlicer').value = '';
+    updateProductAnalysis();
+}
+
+function updateCustomerAnalysis() {
+    const selected = document.getElementById('customerSlicer').value;
+    const data = getBaseData();
+    let filtered = data;
+    
+    if (selected) {
+        filtered = data.filter(r => r.customerName === selected);
+    }
+    
+    const box = document.getElementById('customerChartsBox');
+    if (selected && filtered.length > 0) {
+        box.style.display = 'block';
+        
+        const totalRev = filtered.reduce((s, r) => s + r.netAmount, 0);
+        const avgOrder = filtered.length > 0 ? totalRev / filtered.length : 0;
+        const uniqueProd = new Set(filtered.map(r => r.itemName)).size;
+        
+        document.getElementById('cust-orders').textContent = filtered.length;
+        document.getElementById('cust-revenue').textContent = fmtK(totalRev);
+        document.getElementById('cust-avg').textContent = fmtK(avgOrder);
+        document.getElementById('cust-products').textContent = uniqueProd;
+    } else {
+        box.style.display = 'none';
+    }
+    
+    updateCustomerCharts(filtered);
+}
+
+function updateProductAnalysis() {
+    const selected = document.getElementById('productSlicer').value;
+    const data = getBaseData();
+    let filtered = data;
+    
+    if (selected) {
+        filtered = data.filter(r => r.itemName === selected);
+    }
+    
+    const box = document.getElementById('productChartsBox');
+    if (selected && filtered.length > 0) {
+        box.style.display = 'block';
+        
+        const totalRev = filtered.reduce((s, r) => s + r.netAmount, 0);
+        const totalUnits = filtered.reduce((s, r) => s + r.stock, 0);
+        const uniqueCust = new Set(filtered.map(r => r.customerName)).size;
+        
+        document.getElementById('prod-orders').textContent = filtered.length;
+        document.getElementById('prod-revenue').textContent = fmtK(totalRev);
+        document.getElementById('prod-units').textContent = fmtN(totalUnits);
+        document.getElementById('prod-customers').textContent = uniqueCust;
+    } else {
+        box.style.display = 'none';
+    }
+    
+    updateProductCharts(filtered);
+}
+
+function updateCustomerCharts(data) {
+    // Pie chart - Revenue by Product
+    const prodRev = {};
+    data.forEach(r => {
+        prodRev[r.itemName] = (prodRev[r.itemName] || 0) + r.netAmount;
+    });
+    const prodNames = Object.keys(prodRev).sort();
+    const prodVals = prodNames.map(p => prodRev[p]);
+    
+    destroyChart('chartCustPie');
+    if (prodNames.length > 0) {
+        new Chart(document.getElementById('chartCustPie'), {
+            type: 'pie',
+            data: {
+                labels: prodNames,
+                datasets: [{ data: prodVals, backgroundColor: ['#58a6ff','#3fb950','#ff7b72','#ffa657','#bc8cff','#56d364','#f778ba'], borderWidth: 2, borderColor: '#0d1117' }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom', labels: { padding: 12, font: { size: 11 } } }, tooltip: { callbacks: { label: function(ctx) { const total = ctx.dataset.data.reduce((a,b)=>a+b,0); return fmtK(ctx.parsed) + ' (' + ((ctx.parsed/total)*100).toFixed(1) + '%)'; } } } }
+            }
+        });
+    }
+    
+    // Bar chart - Units by Product
+    const prodUnits = {};
+    const prodRates = {};
+    data.forEach(r => {
+        prodUnits[r.itemName] = (prodUnits[r.itemName] || 0) + r.stock;
+        if (!prodRates[r.itemName]) prodRates[r.itemName] = [];
+        prodRates[r.itemName].push(r.rate);
+    });
+    
+    destroyChart('chartCustBar');
+    if (prodNames.length > 0) {
+        new Chart(document.getElementById('chartCustBar'), {
+            type: 'bar',
+            data: {
+                labels: prodNames,
+                datasets: [{ label: 'Units Sold', data: prodNames.map(p => prodUnits[p]), backgroundColor: 'rgba(88,166,255,0.7)', borderRadius: 6 }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, grid: { color: 'rgba(48,54,61,0.8)' } }, x: { grid: { display: false } } }
+            }
+        });
+    }
+    
+    // Line chart - Revenue Trend
+    const dateRev = {};
+    data.forEach(r => {
+        dateRev[r.invoiceDate] = (dateRev[r.invoiceDate] || 0) + r.netAmount;
+    });
+    const dates = Object.keys(dateRev).sort();
+    const dateVals = dates.map(d => dateRev[d]);
+    
+    destroyChart('chartCustLine');
+    if (dates.length > 0) {
+        new Chart(document.getElementById('chartCustLine'), {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{ label: 'Daily Revenue', data: dateVals, borderColor: '#ffa657', backgroundColor: 'rgba(255,166,87,0.08)', fill: true, tension: 0.4, pointBackgroundColor: '#ffa657', pointRadius: 4 }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: true } },
+                scales: { y: { grid: { color: 'rgba(48,54,61,0.8)' }, ticks: { callback: v => fmtK(v) } }, x: { grid: { color: 'rgba(48,54,61,0.8)' } } }
+            }
+        });
+    }
+    
+    // Donut chart - Product Distribution
+    destroyChart('chartCustDonut');
+    if (prodNames.length > 0) {
+        new Chart(document.getElementById('chartCustDonut'), {
+            type: 'doughnut',
+            data: {
+                labels: prodNames,
+                datasets: [{ data: prodVals, backgroundColor: ['#58a6ff','#3fb950','#ff7b72','#ffa657','#bc8cff','#56d364','#f778ba'], borderWidth: 2, borderColor: '#0d1117' }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'right', labels: { padding: 12, font: { size: 11 } } } },
+                cutout: '65%'
+            }
+        });
+    }
+
+    // Top Products Table
+    const prodData = {};
+    data.forEach(r => {
+        if (!prodData[r.itemName]) prodData[r.itemName] = { name: r.itemName, pack: r.packSize, units: 0, revenue: 0, rates: [] };
+        prodData[r.itemName].units += r.stock;
+        prodData[r.itemName].revenue += r.netAmount;
+        prodData[r.itemName].rates.push(r.rate);
+    });
+    const totalRev = data.reduce((s, r) => s + r.netAmount, 0);
+    const topProdsArray = Object.values(prodData).sort((a, b) => b.revenue - a.revenue).slice(0, 10);
+    const tbody = document.getElementById('custTopProducts');
+    tbody.innerHTML = topProdsArray.map((p, i) => {
+        const avg = p.rates.reduce((s, v) => s + v, 0) / p.rates.length;
+        const share = totalRev > 0 ? (p.revenue / totalRev * 100).toFixed(1) : 0;
+        return `<tr>
+            <td><span class="badge badge-blue">#${i + 1}</span></td>
+            <td style="font-weight:600">${p.name}</td>
+            <td><span class="badge badge-purple">${p.pack}</span></td>
+            <td class="mono">${fmtN(p.units)}</td>
+            <td class="mono">${fmtK(avg)}</td>
+            <td class="mono" style="color:var(--accent2);font-weight:600">${fmtK(p.revenue)}</td>
+            <td><div style="display:flex;align-items:center;gap:8px">
+                <div class="progress-bar" style="width:60px"><div class="progress-fill" style="width:${Math.min(share, 100)}%"></div></div>
+                <span style="font-size:11px;color:var(--muted)">${share}%</span>
+            </div></td>
+        </tr>`;
+    }).join('');
+}
+
+function updateProductCharts(data) {
+    // Pie chart - Revenue by Customer
+    const custRev = {};
+    data.forEach(r => {
+        custRev[r.customerName] = (custRev[r.customerName] || 0) + r.netAmount;
+    });
+    const custNames = Object.keys(custRev).sort();
+    const custVals = custNames.map(c => custRev[c]);
+    
+    destroyChart('chartProdPie');
+    if (custNames.length > 0) {
+        new Chart(document.getElementById('chartProdPie'), {
+            type: 'pie',
+            data: {
+                labels: custNames,
+                datasets: [{ data: custVals, backgroundColor: ['#58a6ff','#3fb950','#ff7b72','#ffa657','#bc8cff','#56d364','#f778ba'], borderWidth: 2, borderColor: '#0d1117' }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom', labels: { padding: 12, font: { size: 11 } } }, tooltip: { callbacks: { label: function(ctx) { const total = ctx.dataset.data.reduce((a,b)=>a+b,0); return fmtK(ctx.parsed) + ' (' + ((ctx.parsed/total)*100).toFixed(1) + '%)'; } } } }
+            }
+        });
+    }
+    
+    // Bar chart - Units by Customer
+    const custUnits = {};
+    data.forEach(r => {
+        custUnits[r.customerName] = (custUnits[r.customerName] || 0) + r.stock;
+    });
+    
+    destroyChart('chartProdBar');
+    if (custNames.length > 0) {
+        new Chart(document.getElementById('chartProdBar'), {
+            type: 'bar',
+            data: {
+                labels: custNames,
+                datasets: [{ label: 'Units Sold', data: custNames.map(c => custUnits[c]), backgroundColor: 'rgba(188,140,255,0.7)', borderRadius: 6 }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, grid: { color: 'rgba(48,54,61,0.8)' } }, x: { grid: { display: false } } }
+            }
+        });
+    }
+    
+    // Line chart - Revenue Trend
+    const dateRev = {};
+    data.forEach(r => {
+        dateRev[r.invoiceDate] = (dateRev[r.invoiceDate] || 0) + r.netAmount;
+    });
+    const dates = Object.keys(dateRev).sort();
+    const dateVals = dates.map(d => dateRev[d]);
+    
+    destroyChart('chartProdLine');
+    if (dates.length > 0) {
+        new Chart(document.getElementById('chartProdLine'), {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{ label: 'Daily Revenue', data: dateVals, borderColor: '#3fb950', backgroundColor: 'rgba(63,185,80,0.08)', fill: true, tension: 0.4, pointBackgroundColor: '#3fb950', pointRadius: 4 }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: true } },
+                scales: { y: { grid: { color: 'rgba(48,54,61,0.8)' }, ticks: { callback: v => fmtK(v) } }, x: { grid: { color: 'rgba(48,54,61,0.8)' } } }
+            }
+        });
+    }
+    
+    // Donut chart - Customer Distribution
+    destroyChart('chartProdDonut');
+    if (custNames.length > 0) {
+        new Chart(document.getElementById('chartProdDonut'), {
+            type: 'doughnut',
+            data: {
+                labels: custNames,
+                datasets: [{ data: custVals, backgroundColor: ['#58a6ff','#3fb950','#ff7b72','#ffa657','#bc8cff','#56d364','#f778ba'], borderWidth: 2, borderColor: '#0d1117' }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'right', labels: { padding: 12, font: { size: 11 } } } },
+                cutout: '65%'
+            }
+        });
+    }
+
+    // Top Customers Table
+    const custData = {};
+    data.forEach(r => {
+        if (!custData[r.customerName]) custData[r.customerName] = { name: r.customerName, company: r.companyName, region: r.regionName, orders: 0, units: 0, revenue: 0 };
+        custData[r.customerName].orders += 1;
+        custData[r.customerName].units += r.stock;
+        custData[r.customerName].revenue += r.netAmount;
+    });
+    const totalRev = data.reduce((s, r) => s + r.netAmount, 0);
+    const topCustsArray = Object.values(custData).sort((a, b) => b.revenue - a.revenue).slice(0, 10);
+    const tbody = document.getElementById('prodTopCustomers');
+    tbody.innerHTML = topCustsArray.map((c, i) => {
+        const share = totalRev > 0 ? (c.revenue / totalRev * 100).toFixed(1) : 0;
+        return `<tr>
+            <td><span class="badge badge-orange">#${i + 1}</span></td>
+            <td style="font-weight:600">${c.name}</td>
+            <td style="color:var(--muted);font-size:12px">${c.company}</td>
+            <td>${regionBadge(c.region)}</td>
+            <td class="mono">${c.orders}</td>
+            <td class="mono">${fmtN(c.units)}</td>
+            <td class="mono" style="color:var(--accent2);font-weight:600">${fmtK(c.revenue)}</td>
+            <td><div style="display:flex;align-items:center;gap:8px">
+                <div class="progress-bar" style="width:60px"><div class="progress-fill" style="width:${Math.min(share, 100)}%"></div></div>
+                <span style="font-size:11px;color:var(--muted)">${share}%</span>
+            </div></td>
+        </tr>`;
+    }).join('');
 }
 
 function updateInsights() {
@@ -2361,12 +2865,12 @@ function updateInsights() {
     const avgOrder = totalRev/data.length;
 
     const items = [
-        { icon:'📊', title:`${data.length.toLocaleString()} Total Transactions`, sub:`Average order value: ${fmt(avgOrder)}` },
-        { icon:'💰', title:`Net Revenue: ${fmt(totalRev)}`, sub:`Discount given: ${fmt(totalDisc)} (${discPct}%)` },
-        { icon:'🏆', title:`Top Customer: ${topCust?topCust[0]:'—'}`, sub:`Revenue: ${topCust?fmt(topCust[1]):'—'}` },
-        { icon:'⭐', title:`Best Product: ${topProd?topProd[0]:'—'}`, sub:`Revenue: ${topProd?fmt(topProd[1]):'—'}` },
-        { icon:'🗺️', title:`Top Region: ${topReg?topReg[0]:'—'}`, sub:`Revenue: ${topReg?fmt(topReg[1]):'—'}` },
-        { icon:'👤', title:`Top Booking Man: ${topMan?topMan[0]:'—'}`, sub:`Revenue: ${topMan?fmt(topMan[1]):'—'}` },
+        { icon:'📊', title:`${data.length.toLocaleString()} Total Transactions`, sub:`Average order value: ${fmtK(avgOrder)}` },
+        { icon:'💰', title:`Net Revenue: ${fmtK(totalRev)}`, sub:`Discount given: ${fmtK(totalDisc)} (${discPct}%)` },
+        { icon:'🏆', title:`Top Customer: ${topCust?topCust[0]:'—'}`, sub:`Revenue: ${topCust?fmtK(topCust[1]):'—'}` },
+        { icon:'⭐', title:`Best Product: ${topProd?topProd[0]:'—'}`, sub:`Revenue: ${topProd?fmtK(topProd[1]):'—'}` },
+        { icon:'🗺️', title:`Top Region: ${topReg?topReg[0]:'—'}`, sub:`Revenue: ${topReg?fmtK(topReg[1]):'—'}` },
+        { icon:'👤', title:`Top Booking Man: ${topMan?topMan[0]:'—'}`, sub:`Revenue: ${topMan?fmtK(topMan[1]):'—'}` },
     ];
     el.innerHTML = items.map(i => `<div class="insight-item">
         <div class="insight-icon">${i.icon}</div>
