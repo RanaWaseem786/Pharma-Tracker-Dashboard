@@ -1197,6 +1197,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             </div>
             <button class="btn btn-ghost" onclick="exportCSV()" title="Export to CSV"><i class="fas fa-file-export"></i></button>
             <button class="btn btn-ghost" onclick="exportPDF()" title="Print / Save Full Report as PDF"><i class="fas fa-file-pdf"></i> PDF Report</button>
+            <button class="btn btn-ghost" onclick="clearAllData()" title="Delete ALL imported data" style="color: var(--accent3)"><i class="fas fa-trash"></i> Clear Data</button>
         </div>
     </div>
 
@@ -2171,11 +2172,64 @@ function importData(headers, rows, mapping) {
         });
     });
 
-    rawData = data;
+    // Append new data to existing data (don't replace)
+    rawData = [...rawData, ...data];
+    
+    // Save to localStorage
+    saveDataToStorage();
+    
     populateFilters();
     populateGlobalFilters();
     updateAll();
-    showToast(`✅ Imported ${data.length.toLocaleString()} records successfully!`, 'success');
+    showToast(`✅ Imported ${data.length.toLocaleString()} records! Total: ${rawData.length.toLocaleString()}`, 'success');
+}
+
+/* ═══════════════════════════════════════════════
+   DATA STORAGE (localStorage - Persistent Storage)
+═══════════════════════════════════════════════ */
+function saveDataToStorage() {
+    try {
+        const dataToSave = JSON.stringify(rawData);
+        localStorage.setItem('pharmaTrackerData', dataToSave);
+        console.log(`✅ Data saved to storage: ${rawData.length} records`);
+    } catch(err) {
+        console.error('Error saving data:', err);
+        showToast('Warning: Could not save data locally (storage full?)', 'warning');
+    }
+}
+
+function loadDataFromStorage() {
+    try {
+        const stored = localStorage.getItem('pharmaTrackerData');
+        if (stored) {
+            rawData = JSON.parse(stored);
+            console.log(`✅ Loaded ${rawData.length} records from storage`);
+            populateFilters();
+            populateGlobalFilters();
+            updateAll();
+            return true;
+        }
+    } catch(err) {
+        console.error('Error loading data:', err);
+        showToast('Error loading saved data', 'error');
+    }
+    return false;
+}
+
+function clearAllData() {
+    if (!confirm('🗑️ Remove ALL data? This cannot be undone!')) return;
+    
+    rawData = [];
+    localStorage.removeItem('pharmaTrackerData');
+    populateFilters();
+    populateGlobalFilters();
+    updateAll();
+    document.getElementById('searchInput').value = '';
+    showToast('✅ All data cleared successfully!', 'success');
+}
+
+function getStoredDataCount() {
+    return rawData.length;
 }
 
 /* ═══════════════════════════════════════════════
@@ -3951,6 +4005,11 @@ function renderSubscriptionBox() {
 
 /* Init */
 initAuth();
+
+// Load saved data from storage
+setTimeout(() => {
+    loadDataFromStorage();
+}, 100);
 
 </script>
 
